@@ -1,0 +1,750 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Tyro iClient Samples</title>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css"/>
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.css">
+<style type="text/css">
+    body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+    }
+
+    .mt15 {
+        margin-top: 15px;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+<script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="//code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+<script type="text/javascript" src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/prettify/r224/prettify.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+<script type="text/javascript" src="https://iclientsimulator.test.tyro.com/iclient-with-ui-v1.js"></script>
+<script type="text/javascript">
+    // Only required because we are loading both iclient versions into the global namespace
+    var TYROUI_TEST = TYRO;
+</script>
+<script type="text/javascript" src="https://iclientsimulator.test.tyro.com/iclient-v1.js"></script>
+<script type="text/javascript">
+    // Only required because we are loading both iclient versions into the global namespace
+    var CUSTOMUI_TEST = TYRO;
+</script>
+<script type="text/javascript" src="https://iclient.test.tyro.com/iclient-with-ui-v1.js"></script>
+<script type="text/javascript">
+    // Only required because we are loading both iclient versions into the global namespace
+    var TYROUI_PREPROD = TYRO;
+</script>
+<script type="text/javascript" src="https://iclient.test.tyro.com/iclient-v1.js"></script>
+<script type="text/javascript">
+    // Only required because we are loading both iclient versions into the global namespace
+    var CUSTOMUI_PREPROD = TYRO;
+</script>
+<script type="text/javascript">
+var system = [TYROUI_TEST, CUSTOMUI_TEST];
+var configurationURLs = ["https://iclientsimulator.test.tyro.com/configuration.html", "https://iclient.test.tyro.com/configuration.html"];
+var configurationUrl = configurationURLs[0];
+var apiKey = "Test API Key";  // API Key not validated in either test environment
+var posProductInfo = {posProductVendor: "Tyro Payments", posProductName: "Mini Cloud POS", posProductVersion: "1.0.0"};
+
+function showTransactionsPage() {
+    hilightNavigationBar("transactions");
+    showTransactionsNavigation();
+    showPurchaseWithTyroUI();
+}
+
+function showReportingPage() {
+    hilightNavigationBar("reporting");
+    showReportingNavigation();
+    showReconciliationReport();
+}
+
+function showConfigurationPage() {
+    hilightNavigationBar("configuration");
+    showConfigurationNavigation();
+    showPairing();
+}
+
+function showTransactionsNavigation() {
+    $("#navigation").html($("#transactionsNavigation").html());
+}
+
+function showReportingNavigation() {
+    $("#navigation").html($("#reportingNavigation").html());
+}
+
+function showConfigurationNavigation() {
+    $("#navigation").html($("#configurationNavigation").html());
+}
+
+function showPurchaseWithTyroUI() {
+    hilightNavigation("purchaseWithTyroUI");
+    $("#content").html($("#purchaseWithTyroUIContent").html());
+}
+
+function showRefundWithTyroUI() {
+    hilightNavigation("refundWithTyroUI");
+    $("#content").html($("#refundWithTyroUIContent").html());
+}
+
+function showPurchaseWithCustomUI() {
+    hilightNavigation("purchaseWithCustomUI");
+    $("#content").html($("#purchaseWithCustomUIContent").html());
+}
+
+function showRefundWithCustomUI() {
+    hilightNavigation("refundWithCustomUI");
+    $("#content").html($("#refundWithCustomUIContent").html());
+}
+
+function showSystemChoice() {
+    hilightNavigation("systemChoice");
+    $("#content").html($("#systemChoiceContent").html());
+}
+
+function showReconciliationReport() {
+    hilightNavigation("reconciliationReport");
+    $("#content").html($("#reconciliationReportContent").html());
+    $("#date").datepicker({"dateFormat": "yymmdd"});
+    $("#date").val($.datepicker.formatDate('yymmdd', new Date()));
+}
+
+function showSettlement() {
+    hilightNavigation("settlement");
+    $("#content").html($("#settlementContent").html());
+}
+
+function showPairing() {
+    hilightNavigation("pairing");
+    $("#content").html($("#pairingContent").html());
+    var iclient = new system[1].IClient(apiKey, posProductInfo);
+    iclient.getConfiguration(function(config) {
+        $("#mid").val(config.mid);
+        $("#tid").val(config.tid);
+    });
+}
+
+function showTerminalInfo() {
+    hilightNavigation("terminalInfo");
+    $("#content").html($("#terminalInfoContent").html());
+}
+
+function showBrowserCheck() {
+    hilightNavigation("browserCheck");
+    $("#content").html($("#browserCheckContent").html());
+}
+
+function hilightNavigationBar(selected) {
+    if (!$("#" + selected).hasClass("active")) {
+        $("#" + selected).addClass("active")
+    }
+    $("#navigation-bar").children("li").each(function (i) {
+        if (this.id != selected) {
+            $(this).removeClass("active");
+        }
+    });
+}
+
+function hilightNavigation(selected) {
+    if (!$("#" + selected).hasClass("active")) {
+        $("#" + selected).addClass("active")
+    }
+    $("#navigation").children("li").each(function (i) {
+        if (this.id != selected) {
+            $(this).removeClass("active");
+        }
+    });
+}
+
+$().ready(function () {
+    showTransactionsPage();
+});
+
+function doPurchaseWithTyroUI() {
+    $("#result").html('');
+    $("#merchantReceipt").html('');
+    $("#customerReceipt").html('');
+    var amount = $("#amount").val();
+    var cashout = $("#cashout").val();
+    var iclient = new system[0].IClientWithUI(apiKey, posProductInfo);
+    iclient.initiatePurchase({amount: amount, cashout: cashout, integratedReceipt: true}, {
+        receiptCallback: function (receipt) {
+            $("#merchantReceipt").html(formatReceipt(receipt.merchantReceipt));
+        },
+        transactionCompleteCallback: function (response) {
+            if (response.customerReceipt) {
+                $("#customerReceipt").html(formatReceipt(response.customerReceipt));
+            }
+            $("#result").html(formatResult(response));
+        }
+    });
+}
+
+function doRefundWithTyroUI() {
+    $("#result").html('');
+    $("#merchantReceipt").html('');
+    $("#customerReceipt").html('');
+    var amount = $("#amount").val();
+    var iclient = new system[0].IClientWithUI(apiKey, posProductInfo);
+    iclient.initiateRefund({amount: amount, integratedReceipt: true}, {
+        receiptCallback: function (receipt) {
+            $("#merchantReceipt").html(formatReceipt(receipt.merchantReceipt));
+        },
+        transactionCompleteCallback: function (response) {
+            if (response.customerReceipt) {
+                $("#customerReceipt").html(formatReceipt(response.customerReceipt));
+            }
+            $("#result").html(formatResult(response));
+        }
+    });
+}
+
+var iclient;
+
+function doPurchaseWithCustomUI() {
+    $("#result").html('');
+    $("#merchantReceipt").html('');
+    $("#customerReceipt").html('');
+    var amount = $("#amount").val();
+    var cashout = $("#cashout").val();
+    iclient = new system[1].IClient(apiKey, posProductInfo);
+    iclient.initiatePurchase({amount: amount, cashout: cashout, integratedReceipt: true}, {
+        statusMessageCallback: function (message) {
+            $("#messages").text(message);
+        },
+        questionCallback: function (question, answerCallback) {
+            var buttons = question.options.reverse().map(function (option) {
+                return {
+                    label: option,
+                    callback: function () {
+                        answerCallback(option);
+                    }
+                };
+            });
+            bootbox.dialog(question.text, buttons);
+        },
+        receiptCallback: function (receipt) {
+            $("#merchantReceipt").html(formatReceipt(receipt.merchantReceipt));
+        },
+        transactionCompleteCallback: function (response) {
+            if (response.customerReceipt) {
+                $("#customerReceipt").html(formatReceipt(response.customerReceipt));
+            }
+            $("#result").html(formatResult(response));
+        }
+    });
+}
+
+function doRefundWithCustomUI() {
+    $("#result").html('');
+    $("#merchantReceipt").html('');
+    $("#customerReceipt").html('');
+    var amount = $("#amount").val();
+    var cashout = $("#cashout").val();
+    iclient = new system[1].IClient(apiKey, posProductInfo);
+    iclient.initiateRefund({amount: amount, integratedReceipt: true}, {
+        statusMessageCallback: function(message) {
+            $("#messages").text(message);
+        },
+        questionCallback: function (question, answerCallback) {
+            var buttons = question.options.reverse().map(function (option) {
+                return {
+                    label: option,
+                    callback: function() {
+                        answerCallback(option);
+                    }
+                };
+            });
+            bootbox.dialog(question.text, buttons);
+        },
+        receiptCallback: function(receipt) {
+            $("#merchantReceipt").html(formatReceipt(receipt.merchantReceipt));
+        },
+        transactionCompleteCallback: function (response) {
+            if (response.customerReceipt) {
+                $("#customerReceipt").html(formatReceipt(response.customerReceipt));
+            }
+            $("#result").html(formatResult(response));
+        }
+    });
+}
+
+function doCancelTransaction() {
+    if (iclient) {
+        iclient.cancelCurrentTransaction();
+    }
+}
+
+function doReset() {
+    var iclient = new system[1].IClient(apiKey, posProductInfo);
+    iclient.getConfiguration(function(config) {
+        var url = "https://integrationtest.tyro.com/terminals/" + config.mid + "/" + config.tid + "/reset";
+        var jqxhr = $.get(url, function() {
+            alert("Simulator has been reset");
+        }).fail(function(e) {
+            alert("Unable to reset simulator " + JSON.stringify(e));
+        });
+    });
+}
+
+function switchToTestSystem() {
+    system = [TYROUI_TEST, CUSTOMUI_TEST];
+    configurationUrl = configurationURLs[0];
+    $("#currentSystem").html("The Test system is now in use");
+}
+
+function switchToPreProdSystem() {
+    system = [TYROUI_PREPROD, CUSTOMUI_PREPROD];
+    configurationUrl = configurationURLs[1];
+    $("#currentSystem").html("The Pre Production system is now in use");
+}
+
+function doGenerateReport() {
+    var date = $("#date").val();
+    var type = $("input:radio[name=type]:checked").val();
+    var format = $("input:radio[name=format]:checked").val();
+    var iclient = new system[1].IClient(apiKey, posProductInfo);
+    iclient.reconciliationReport({
+        terminalBusinessDay: date,
+        type: type,
+        format: format
+    }, function(report) {
+        if ("success" == report.result) {
+            if ("xml" == report.format) {
+                $("#report").html("<pre class=\"prettyprint\">" + report.data.replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</pre>");
+            } else {
+                $("#report").html("<pre class=\"prettyprint\">" + report.data + "</pre>");
+            }
+        } else if (report.error) {
+            $("#report").text(report.error);
+        } else {
+            $("#report").text("An unknown error has occurred while generating report");
+        }
+    });
+}
+
+function doSettlement() {
+    var iclient = new system[1].IClient(apiKey, posProductInfo);
+    iclient.manualSettlement(function(response) {
+        if ("success" == response.result) {
+            $("#result").text("Success: " + response.message + " (new day is " + response.currentTerminalBusinessDay + ")");
+        } else {
+            $("#result").text("Failure: " + response.message);
+        }
+    });
+}
+
+function doPairing() {
+    var mid = $("#mid").val();
+    var tid = $("#tid").val();
+    var iclient = new system[1].IClient(apiKey, posProductInfo);
+    iclient.pairTerminal(mid, tid, function(response) {
+        if ("success" == response.status) {
+            $("#result").text("Success: " + response.message);
+        } else if ("failure" == response.status) {
+            $("#result").text("Failure: " + response.message);
+        } else {
+            $("#result").text(response.message);
+        }
+    });
+}
+
+function doTerminalInfo() {
+    var iclient = new system[1].IClient(apiKey, posProductInfo);
+    iclient.terminalInfo(function(response) {
+        if ("success" == response.status) {
+            $("#result").html(createTerminalInfoTable(response.terminalInfo));
+        } else if ("failure" == response.status) {
+            $("#result").text("Failure: " + response.message);
+        } else {
+            $("#result").text(response.message);
+        }
+    });
+}
+
+function createTerminalInfoTable(terminalInfo) {
+    var table = "<table>";
+    table += createRow("Name", terminalInfo.name);
+    table += createRow("Version", terminalInfo.version);
+    table += createRow("Available", terminalInfo.available);
+    table += createRow("Current business day", terminalInfo.currentTerminalBusinessDay);
+    table += createRow("Next settlement time", terminalInfo.nextAutoSettlementTime);
+    table += "</table>";
+    return table;
+}
+
+function doBrowserCheck() {
+    $("#result").html(createBrowserCompatabilityTable());
+}
+
+function createBrowserCompatabilityTable() {
+    var table = "<table>";
+    table += createRow("Local storage", Modernizr.localstorage);
+    table += createRow("Application cache", Modernizr.applicationcache);
+    table += createRow("Post message", Modernizr.postmessage);
+    table += createRow("Hash change", Modernizr.hashchange);
+    table += createRow("History", Modernizr.history);
+    table += createRow("Input", JSON.stringify(Modernizr.input));
+    table += createRow("Input types", JSON.stringify(Modernizr.inputtypes));
+    table += "</table>";
+    return table;
+}
+
+function createRow(name, value) {
+    return "<tr><td style=\"width: 170px;\" nowrap=\"true\">" + name + ":</td><td nowrap=\"true\">" + value + "</td></tr>";
+}
+
+function formatReceipt(text) {
+    return "<pre>" + text + "</pre>";
+}
+
+function formatResult(response) {
+    var result = "<table>";
+    result += "<tr><td>Result:</td><td>" + response.result + "</td></tr>"
+    result += "</table>";
+    return result;
+}
+</script>
+</head>
+
+<body>
+
+<div class="container-fluid">
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <div class="nav-collapse collapse">
+                    <ul id="navigation-bar" class="nav">
+                        <li id="transactions"><a href="javascript:showTransactionsPage()">Transactions</a></li>
+                        <li id="reporting"><a href="javascript:showReportingPage()">Reporting and Settlement</a></li>
+                        <li id="configuration"><a href="javascript:showConfigurationPage()">Configuration</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row-fluid" style="height: 600px;">
+
+        <div class="span2">
+            <div class="well sidebar-nav">
+                <ul id="navigation" class="nav nav-list">
+                </ul>
+            </div>
+        </div>
+
+        <div class="span10">
+            <div id="content"></div>
+        </div>
+    </div>
+
+    <hr>
+
+    <footer>
+        <p>&copy; Tyro Payments 2013</p>
+    </footer>
+
+</div>
+<div id="transactionsNavigation" class="hidden">
+    <li class="nav-header">Using Tyro UI</li>
+    <li id="purchaseWithTyroUI"><a href="javascript:showPurchaseWithTyroUI()">Purchase</a></li>
+    <li id="refundWithTyroUI"><a href="javascript:showRefundWithTyroUI()">Refund</a></li>
+    <li class="nav-header">Using a Custom UI</li>
+    <li id="purchaseWithCustomUI"><a href="javascript:showPurchaseWithCustomUI()">Purchase</a></li>
+    <li id="refundWithCustomUI"><a href="javascript:showRefundWithCustomUI()">Refund</a></li>
+    <li class="nav-header">Configuration</li>
+    <li><a href="javascript:window.open(configurationUrl, '_blank')">Configuration</a></li>
+    <li><a href="javascript:doReset()">Reset Simulator</a></li>
+    <li id="systemChoice"><a href="javascript:showSystemChoice()">System</a></li>
+</div>
+<div id="reportingNavigation" class="hidden">
+    <li class="nav-header">Reporting</li>
+    <li id="reconciliationReport"><a href="javascript:showReconciliationReport()">Reconciliation report</a></li>
+    <li id="settlement"><a href="javascript:showSettlement()">Settlement</a></li>
+</div>
+<div id="configurationNavigation" class="hidden">
+    <li class="nav-header">Configuration</li>
+    <li id="pairing"><a href="javascript:showPairing()">Pairing</a></li>
+    <li id="terminalInfo"><a href="javascript:showTerminalInfo()">Terminal info</a></li>
+    <li id="browserCheck"><a href="javascript:showBrowserCheck()">Browser check</a></li>
+</div>
+<div id="purchaseWithTyroUIContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span3">
+            <h2>Purchase</h2>
+
+            <div class="mt15">
+                <label for="amount">Amount:</label>
+                <input id="amount" type="text" placeholder="Amount" name="amount" value="10000">
+            </div>
+            <div class="mt15">
+                <label for="cashout">Cash out:</label>
+                <input id="cashout" type="text" placeholder="Cash out" name="cashout">
+            </div>
+            <div class="mt15">
+                <button type="button" class="btn btn-primary" onclick="doPurchaseWithTyroUI()">Process</button>
+            </div>
+        </div>
+        <div class="span3">
+            <h2>Result</h2>
+
+            <div id="result"></div>
+        </div>
+        <div class="span3">
+            <h2>Receipts</h2>
+
+            <div id="merchantReceipt" style="width: 250px;"></div>
+        </div>
+        <div class="span3">
+            <h2>&nbsp;</h2>
+
+            <div id="customerReceipt" style="width: 250px;"></div>
+        </div>
+    </div>
+</div>
+<div id="refundWithTyroUIContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span3">
+            <h2>Refund</h2>
+
+            <div class="mt15">
+                <label for="amount">Amount:</label>
+                <input id="amount" type="text" placeholder="Amount" name="amount" value="10208">
+            </div>
+            <div class="mt15">
+                <button type="button" class="btn btn-primary" onclick="doRefundWithTyroUI()">Process</button>
+            </div>
+        </div>
+        <div class="span3">
+            <h2>Result</h2>
+
+            <div id="result"></div>
+        </div>
+        <div class="span3">
+            <h2>Receipts</h2>
+
+            <div id="merchantReceipt" style="width: 250px;"></div>
+        </div>
+        <div class="span3">
+            <h2>&nbsp;</h2>
+
+            <div id="customerReceipt" style="width: 250px;"></div>
+        </div>
+    </div>
+</div>
+<div id="purchaseWithCustomUIContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span3">
+            <h2>Purchase</h2>
+
+            <div class="mt15">
+                <label for="amount">Amount:</label>
+                <input id="amount" type="text" placeholder="Amount" name="amount" value="10208">
+            </div>
+            <div class="mt15">
+                <label for="cashout">Cash out:</label>
+                <input id="cashout" type="text" placeholder="Cash out" name="cashout">
+            </div>
+            <div class="mt15">
+                <button type="button" class="btn btn-primary" onclick="doPurchaseWithCustomUI()">Process</button>
+                <button type="button" class="btn btn-primary" style="float:right" onclick="doCancelTransaction()">Cancel</button>
+            </div>
+        </div>
+        <div class="span3">
+            <div style="height: 200px;">
+                <h2>Messages</h2>
+
+                <div id="messages"></div>
+            </div>
+            <div style="height: 200px;">
+                <h2>Result</h2>
+
+                <div id="result"></div>
+            </div>
+        </div>
+        <div class="span3">
+            <h2>Receipts</h2>
+
+            <div id="merchantReceipt" style="width: 250px;"></div>
+        </div>
+        <div class="span3">
+            <h2>&nbsp;</h2>
+
+            <div id="customerReceipt" style="width: 250px;"></div>
+        </div>
+    </div>
+</div>
+<div id="refundWithCustomUIContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span3">
+            <h2>Purchase</h2>
+
+            <div class="mt15">
+                <label for="amount">Amount:</label>
+                <input id="amount" type="text" placeholder="Amount" name="amount" value="10208">
+            </div>
+            <div class="mt15">
+                <button type="button" class="btn btn-primary" onclick="doRefundWithCustomUI()">Process</button>
+                <button type="button" class="btn btn-primary" style="float:right" onclick="doCancelTransaction()">Cancel</button>
+            </div>
+        </div>
+        <div class="span3">
+            <div style="height: 200px;">
+                <h2>Messages</h2>
+
+                <div id="messages"></div>
+            </div>
+            <div style="height: 200px;">
+                <h2>Result</h2>
+
+                <div id="result"></div>
+            </div>
+        </div>
+        <div class="span3">
+            <h2>Receipts</h2>
+
+            <div id="merchantReceipt" style="width: 250px;"></div>
+        </div>
+        <div class="span3">
+            <h2>&nbsp;</h2>
+
+            <div id="customerReceipt" style="width: 250px;"></div>
+        </div>
+    </div>
+</div>
+<div id="systemChoiceContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span5">
+            <h2>System</h2>
+            <div class="mt15">
+                <div class="btn-group" data-toggle="buttons-radio">
+                    <button type="button" class="btn btn-primary active" onclick="switchToTestSystem()">Test</button>
+                    <button type="button" class="btn btn-primary" onclick="switchToPreProdSystem()">Pre Production</button>
+                </div>
+            </div>
+            <div id="currentSystem" class="mt15">
+                The Test system is currently in use
+            </div>
+        </div>
+    </div>
+</div>
+<div id="reconciliationReportContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span3">
+            <h2>Options</h2>
+
+            <div class="mt15">
+                <label for="date">Date:</label>
+                <input id="date" type="text" placeholder="Select date">
+            </div>
+            <div class="mt15">
+                <label>Type:</label>
+                <input id="summary" type="radio" name="type" value="summary" checked="checked"><label style="display: inline; margin: 0px 20px 0px 10px;" for="summary">Summary</label>
+                <input id="detail" type="radio" name="type" value="detail"><label style="display: inline; margin: 0px 20px 0px 10px;" for="detail">Detail</label>
+            </div>
+            <div class="mt15" style="">
+                <label>Format:</label>
+                <input id="txt" type="radio" name="format" value="txt" checked="checked"><label style="display: inline; margin: 0px 20px 0px 10px;" for="txt">Text</label>
+                <input id="xml" type="radio" name="format" value="xml"><label style="display: inline; margin: 0px 20px 0px 10px;" for="xml">XML</label>
+            </div>
+            <div class="mt15">
+                <button type="button" class="btn btn-primary" onclick="doGenerateReport()">Generate</button>
+            </div>
+            <div class="mt15">
+                Note: You will have to configure using Merchant 200 and Terminal ID 200.
+            </div>
+        </div>
+        <div class="span9">
+            <h2>Report</h2>
+
+            <div id="report"></div>
+        </div>
+    </div>
+</div>
+<div id="settlementContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span3">
+            <h2>Settlement</h2>
+            <div class="mt15">
+                <button type="button" class="btn btn-primary" onclick="doSettlement()">Send Settlement Instruction</button>
+            </div>
+        </div>
+        <div class="span9">
+            <h2>Result</h2>
+
+            <div id="result"></div>
+        </div>
+    </div>
+</div>
+<div id="pairingContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span3">
+            <h2>Configuration</h2>
+
+            <div class="mt15">
+                <label for="mid">Merchant ID:</label>
+                <input id="mid" type="text" placeholder="Merchant ID" name="mid">
+            </div>
+            <div class="mt15">
+                <label for="tid">Terminal ID:</label>
+                <input id="tid" type="text" placeholder="Terminal ID" name="tid">
+            </div>
+            <div class="mt15">
+                <button type="button" class="btn btn-primary" onclick="doPairing()">Commence Pairing</button>
+            </div>
+        </div>
+        <div class="span9">
+            <div style="height: 200px;">
+                <h2>Messages</h2>
+
+                <div id="messages"></div>
+            </div>
+            <div style="height: 200px;">
+                <h2>Result</h2>
+
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="terminalInfoContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span3">
+            <h2>Terminal Info</h2>
+            <div class="mt15">
+                <button type="button" class="btn btn-primary" onclick="doTerminalInfo()">Request Terminal Info</button>
+            </div>
+        </div>
+        <div class="span9">
+            <h2>Result</h2>
+
+            <div id="result"></div>
+        </div>
+    </div>
+</div>
+<div id="browserCheckContent" class="hidden">
+    <div class="container-fluid">
+        <div class="span3">
+            <h2>Broswer Check</h2>
+            <div class="mt15">
+                <button type="button" class="btn btn-primary" onclick="doBrowserCheck()">Check Browser Compatability</button>
+            </div>
+        </div>
+        <div class="span9">
+            <h2>Result</h2>
+
+            <div id="result"></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+

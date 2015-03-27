@@ -29,25 +29,25 @@
 <script type="text/javascript" src="https://iclientsimulator.test.tyro.com/iclient-with-ui-v1.js"></script>
 <script type="text/javascript">
     // Only required because we are loading both iclient versions into the global namespace
-    var TYROUI_TEST = TYRO;
+    var TYROUI_SIMULATOR = TYRO;
 </script>
 <script type="text/javascript" src="https://iclientsimulator.test.tyro.com/iclient-v1.js"></script>
 <script type="text/javascript">
     // Only required because we are loading both iclient versions into the global namespace
-    var CUSTOMUI_TEST = TYRO;
+    var CUSTOMUI_SIMULATOR = TYRO;
 </script>
 <script type="text/javascript" src="https://iclient.test.tyro.com/iclient-with-ui-v1.js"></script>
 <script type="text/javascript">
     // Only required because we are loading both iclient versions into the global namespace
-    var TYROUI_PREPROD = TYRO;
+    var TYROUI_TEST = TYRO;
 </script>
 <script type="text/javascript" src="https://iclient.test.tyro.com/iclient-v1.js"></script>
 <script type="text/javascript">
     // Only required because we are loading both iclient versions into the global namespace
-    var CUSTOMUI_PREPROD = TYRO;
+    var CUSTOMUI_TEST = TYRO;
 </script>
 <script type="text/javascript">
-var system = [TYROUI_TEST, CUSTOMUI_TEST];
+var system = [TYROUI_SIMULATOR, CUSTOMUI_SIMULATOR];
 var configurationURLs = ["https://iclientsimulator.test.tyro.com/configuration.html", "https://iclient.test.tyro.com/configuration.html"];
 var configurationUrl = configurationURLs[0];
 var apiKey = "Test API Key";  // API Key not validated in either test environment
@@ -284,7 +284,7 @@ function doCancelTransaction() {
 function doReset() {
     var iclient = new system[1].IClient(apiKey, posProductInfo);
     iclient.getConfiguration(function(config) {
-        var url = "https://integrationtest.tyro.com/terminals/" + config.mid + "/" + config.tid + "/reset";
+        var url = "https://integrationsimulator.test.tyro.com/terminals/" + config.mid + "/" + config.tid + "/reset";
         var jqxhr = $.get(url, function() {
             alert("Simulator has been reset");
         }).fail(function(e) {
@@ -293,16 +293,16 @@ function doReset() {
     });
 }
 
-function switchToTestSystem() {
-    system = [TYROUI_TEST, CUSTOMUI_TEST];
+function switchToSimulator() {
+    system = [TYROUI_SIMULATOR, CUSTOMUI_SIMULATOR];
     configurationUrl = configurationURLs[0];
-    $("#currentSystem").html("The Test system is now in use");
+    $("#currentSystem").html("The Simulator is now in use");
 }
 
-function switchToPreProdSystem() {
-    system = [TYROUI_PREPROD, CUSTOMUI_PREPROD];
+function switchToTestSystem() {
+    system = [TYROUI_TEST, CUSTOMUI_TEST];
     configurationUrl = configurationURLs[1];
-    $("#currentSystem").html("The Pre Production system is now in use");
+    $("#currentSystem").html("The Test System is now in use");
 }
 
 function doGenerateReport() {
@@ -448,7 +448,7 @@ function formatResult(response) {
     <hr>
 
     <footer>
-        <p>&copy; Tyro Payments 2013</p>
+        <p>&copy; Tyro Payments 2015</p>
     </footer>
 
 </div>
@@ -625,8 +625,8 @@ function formatResult(response) {
             <h2>System</h2>
             <div class="mt15">
                 <div class="btn-group" data-toggle="buttons-radio">
-                    <button type="button" class="btn btn-primary active" onclick="switchToTestSystem()">Test</button>
-                    <button type="button" class="btn btn-primary" onclick="switchToPreProdSystem()">Pre Production</button>
+                    <button type="button" class="btn btn-primary active" onclick="switchToSimulator()">Simulator</button>
+                    <button type="button" class="btn btn-primary" onclick="switchToTestSystem()">Test System</button>
                 </div>
             </div>
             <div id="currentSystem" class="mt15">

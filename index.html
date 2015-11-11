@@ -173,11 +173,15 @@ function doPurchaseWithTyroUI() {
     var amount = $("#amount").val();
     var cashout = $("#cashout").val();
     var iclient = new system[0].IClientWithUI(apiKey, posProductInfo);
-    iclient.initiatePurchase({amount: amount, cashout: cashout, integratedReceipt: true}, {
+    iclient.initiatePurchase({amount: amount, cashout: cashout, integratedReceipt: false}, {
         receiptCallback: function (receipt) {
+            console.log("Print merchant receipt:");
+            console.log(JSON.stringify(receipt));
             $("#merchantReceipt").html(formatReceipt(receipt.merchantReceipt));
         },
         transactionCompleteCallback: function (response) {
+            console.log("Purchase result:");
+            console.log(JSON.stringify(response));
             if (response.customerReceipt) {
                 $("#customerReceipt").html(formatReceipt(response.customerReceipt));
             }
@@ -194,9 +198,13 @@ function doRefundWithTyroUI() {
     var iclient = new system[0].IClientWithUI(apiKey, posProductInfo);
     iclient.initiateRefund({amount: amount, integratedReceipt: true}, {
         receiptCallback: function (receipt) {
+            console.log("Print merchant receipt:");
+            console.log(JSON.stringify(receipt));
             $("#merchantReceipt").html(formatReceipt(receipt.merchantReceipt));
         },
         transactionCompleteCallback: function (response) {
+            console.log("Refund result:");
+            console.log(JSON.stringify(response));
             if (response.customerReceipt) {
                 $("#customerReceipt").html(formatReceipt(response.customerReceipt));
             }

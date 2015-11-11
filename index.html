@@ -173,7 +173,7 @@ function doPurchaseWithTyroUI() {
     var amount = $("#amount").val();
     var cashout = $("#cashout").val();
     var iclient = new system[0].IClientWithUI(apiKey, posProductInfo);
-    iclient.initiatePurchase({amount: amount, cashout: cashout, integratedReceipt: false}, {
+    iclient.initiatePurchase({amount: amount, cashout: cashout, integratedReceipt: true}, {
         receiptCallback: function (receipt) {
             console.log("Print merchant receipt:");
             console.log(JSON.stringify(receipt));

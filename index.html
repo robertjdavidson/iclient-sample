@@ -180,8 +180,7 @@ function doPurchaseWithTyroUI() {
             $("#merchantReceipt").html(formatReceipt(receipt.merchantReceipt));
         },
         transactionCompleteCallback: function (response) {
-            console.log("Purchase result:");
-            console.log(JSON.stringify(response));
+            console.log("Purchase response: " + JSON.stringify(response));
             if (response.customerReceipt) {
                 $("#customerReceipt").html(formatReceipt(response.customerReceipt));
             }
@@ -203,8 +202,7 @@ function doRefundWithTyroUI() {
             $("#merchantReceipt").html(formatReceipt(receipt.merchantReceipt));
         },
         transactionCompleteCallback: function (response) {
-            console.log("Refund result:");
-            console.log(JSON.stringify(response));
+            console.log("Refund response: " + JSON.stringify(response));
             if (response.customerReceipt) {
                 $("#customerReceipt").html(formatReceipt(response.customerReceipt));
             }
@@ -224,9 +222,11 @@ function doPurchaseWithCustomUI() {
     iclient = new system[1].IClient(apiKey, posProductInfo);
     iclient.initiatePurchase({amount: amount, cashout: cashout, integratedReceipt: true}, {
         statusMessageCallback: function (message) {
+            console.log("Status: " + message);
             $("#messages").text(message);
         },
         questionCallback: function (question, answerCallback) {
+            console.log("Question: " + JSON.stringify(question));
             var buttons = question.options.reverse().map(function (option) {
                 return {
                     label: option,
@@ -254,7 +254,6 @@ function doRefundWithCustomUI() {
     $("#merchantReceipt").html('');
     $("#customerReceipt").html('');
     var amount = $("#amount").val();
-    var cashout = $("#cashout").val();
     iclient = new system[1].IClient(apiKey, posProductInfo);
     iclient.initiateRefund({amount: amount, integratedReceipt: true}, {
         statusMessageCallback: function(message) {
@@ -340,6 +339,7 @@ function doGenerateReport() {
 function doSettlement() {
     var iclient = new system[1].IClient(apiKey, posProductInfo);
     iclient.manualSettlement(function(response) {
+        console.log("Settlement response: " + JSON.stringify(response));
         if ("success" == response.result) {
             $("#result").text("Success: " + response.message + " (new day is " + response.currentTerminalBusinessDay + ")");
         } else {
@@ -354,8 +354,10 @@ function doPairing() {
     var iclient = new system[1].IClient(apiKey, posProductInfo);
     iclient.pairTerminal(mid, tid, function(response) {
         if ("success" == response.status) {
+            console.log("Pairing success: " + JSON.stringify(response));
             $("#result").text("Success: " + response.message);
         } else if ("failure" == response.status) {
+            console.log("Pairing failure: " + JSON.stringify(response));
             $("#result").text("Failure: " + response.message);
         } else {
             $("#result").text(response.message);
@@ -367,8 +369,10 @@ function doTerminalInfo() {
     var iclient = new system[1].IClient(apiKey, posProductInfo);
     iclient.terminalInfo(function(response) {
         if ("success" == response.status) {
+            console.log("Terminal info success: " + JSON.stringify(response));
             $("#result").html(createTerminalInfoTable(response.terminalInfo));
         } else if ("failure" == response.status) {
+            console.log("Terminal info failure: " + JSON.stringify(response));
             $("#result").text("Failure: " + response.message);
         } else {
             $("#result").text(response.message);
@@ -494,7 +498,7 @@ function formatResult(response) {
             </div>
             <div class="mt15">
                 <label for="cashout">Cash out:</label>
-                <input id="cashout" type="text" placeholder="Cash out" name="cashout">
+                <input id="cashout" type="text" placeholder="Cash out" name="cashout" value="0">
             </div>
             <div class="mt15">
                 <button type="button" class="btn btn-primary" onclick="doPurchaseWithTyroUI()">Process</button>

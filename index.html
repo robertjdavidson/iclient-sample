@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,6 +50,7 @@ var configurationURLs = ["https://iclientsimulator.test.tyro.com/configuration.h
 var configurationUrl = configurationURLs[0];
 var apiKey = "Test API Key";  // API Key not validated in either test environment
 var posProductInfo = {posProductVendor: "Tyro Payments", posProductName: "Mini Cloud POS", posProductVersion: "1.0.0"};
+var simulator = true;
 
 function showTransactionsPage() {
     hilightNavigationBar("transactions");
@@ -106,6 +105,11 @@ function showRefundWithCustomUI() {
 function showSystemChoice() {
     hilightNavigation("systemChoice");
     $("#content").html($("#systemChoiceContent").html());
+    if (simulator) {
+        $("#simulator").click();
+    } else {
+        $("#test-system").click();
+    }
 }
 
 function showReconciliationReport() {
@@ -257,6 +261,7 @@ function doRefundWithCustomUI() {
     iclient = new system[1].IClient(apiKey, posProductInfo);
     iclient.initiateRefund({amount: amount, integratedReceipt: true}, {
         statusMessageCallback: function(message) {
+            console.log("Status: " + message);
             $("#messages").text(message);
         },
         questionCallback: function (question, answerCallback) {
@@ -304,12 +309,14 @@ function switchToSimulator() {
     system = [TYROUI_SIMULATOR, CUSTOMUI_SIMULATOR];
     configurationUrl = configurationURLs[0];
     $("#currentSystem").html("The Simulator is now in use");
+    simulator = true;
 }
 
 function switchToTestSystem() {
     system = [TYROUI_TEST, CUSTOMUI_TEST];
     configurationUrl = configurationURLs[1];
     $("#currentSystem").html("The Test System is now in use");
+    simulator = false;
 }
 
 function doGenerateReport() {
@@ -637,12 +644,12 @@ function formatResult(response) {
             <h2>System</h2>
             <div class="mt15">
                 <div class="btn-group" data-toggle="buttons-radio">
-                    <button type="button" class="btn btn-primary active" onclick="switchToSimulator()">Simulator</button>
-                    <button type="button" class="btn btn-primary" onclick="switchToTestSystem()">Test System</button>
+                    <button id="simulator" type="button" class="btn btn-primary active" onclick="switchToSimulator()">Simulator</button>
+                    <button id="test-system" type="button" class="btn btn-primary" onclick="switchToTestSystem()">Test System</button>
                 </div>
             </div>
             <div id="currentSystem" class="mt15">
-                The Test system is currently in use
+                The Simulator is currently in use
             </div>
         </div>
     </div>
